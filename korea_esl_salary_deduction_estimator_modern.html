@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Korea ESL Salary Deduction Estimator</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-2: #121a31;
+      --panel: rgba(255, 255, 255, 0.08);
+      --panel-strong: rgba(255, 255, 255, 0.12);
+      --card: rgba(255, 255, 255, 0.06);
+      --text: #edf2ff;
+      --muted: #aab5d3;
+      --line: rgba(255, 255, 255, 0.12);
+      --primary: #7c9cff;
+      --primary-2: #9e8cff;
+      --accent: #6ee7c8;
+      --danger: #ff9aa7;
+      --warn-bg: rgba(255, 214, 102, 0.12);
+      --warn-line: rgba(255, 214, 102, 0.32);
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --blur: blur(18px);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124, 156, 255, 0.22), transparent 26%),
+        radial-gradient(circle at top right, rgba(110, 231, 200, 0.14), transparent 18%),
+        linear-gradient(180deg, #0a1020 0%, #0e1528 45%, #0a1020 100%);
+      line-height: 1.5;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 999px;
+      filter: blur(70px);
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb.one {
+      width: 260px;
+      height: 260px;
+      background: rgba(124, 156, 255, 0.25);
+      top: 40px;
+      left: -40px;
+    }
+
+    .orb.two {
+      width: 280px;
+      height: 280px;
+      background: rgba(158, 140, 255, 0.18);
+      right: -40px;
+      top: 220px;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 18px 60px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 34px 30px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+      backdrop-filter: var(--blur);
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      color: #dbe5ff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 4vw, 54px);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      max-width: 780px;
+    }
+
+    .sub {
+      margin: 16px 0 0;
+      max-width: 800px;
+      font-size: 17px;
+      color: var(--muted);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 22px;
+      margin-top: 22px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      backdrop-filter: var(--blur);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-inner {
+      padding: 24px;
+    }
+
+    .eyebrow {
+      color: #cbd6f8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .muted { color: var(--muted); }
+
+    .field { margin-top: 20px; }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #f7f9ff;
+    }
+
+    .input-shell {
+      position: relative;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+
+    .currency {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #d6def8;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 20px 18px 20px 48px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: white;
+      background: transparent;
+    }
+
+    input[type="text"]::placeholder {
+      color: rgba(255,255,255,0.35);
+      font-weight: 600;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.14s ease, opacity 0.2s ease, background 0.2s ease;
+    }
+
+    button:hover { opacity: 0.96; }
+    button:active { transform: translateY(1px); }
+
+    .primary-btn {
+      flex: 1;
+      color: #071020;
+      background: linear-gradient(135deg, var(--accent), #a7f3d0);
+    }
+
+    .ghost-btn {
+      color: #eef4ff;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      min-width: 110px;
+    }
+
+    .note {
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: rgba(124, 156, 255, 0.1);
+      border: 1px solid rgba(124, 156, 255, 0.25);
+      border-radius: 14px;
+      color: #dfe8ff;
+      font-size: 14px;
+    }
+
+    .error {
+      display: none;
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 154, 167, 0.32);
+      background: rgba(255, 154, 167, 0.1);
+      color: #ffe1e6;
+      font-size: 14px;
+    }
+
+    .result-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    }
+
+    .result-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .result-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: #cfd9fb;
+    }
+
+    .result-value {
+      font-size: clamp(34px, 4vw, 50px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      margin-top: 8px;
+      color: #f8fffd;
+    }
+
+    .salary-summary {
+      text-align: right;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 180px;
+    }
+
+    .metric-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .metric strong {
+      font-size: 15px;
+    }
+
+    .metric span:last-child {
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .metric.total {
+      margin-top: 2px;
+      background: rgba(110, 231, 200, 0.08);
+      border-color: rgba(110, 231, 200, 0.22);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #dbe5ff;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .sections {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .section-card {
+      padding: 22px;
+    }
+
+    .section-card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-card p,
+    .section-card li {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-card ol {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .section-card li + li { margin-top: 8px; }
+
+    .warnbox {
+      padding: 16px 18px;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-radius: 16px;
+      color: #ffe9b0;
+    }
+
+    .footer {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .sections {
+        grid-template-columns: 1fr;
+      }
+
+      .salary-summary {
+        text-align: left;
+        max-width: none;
+      }
+
+      .result-top {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .wrap { padding: 18px 14px 40px; }
+      .hero { padding: 24px 18px; }
+      .panel-inner,
+      .section-card { padding: 18px; }
+      input[type="text"] { font-size: 24px; }
+      .actions { flex-direction: column; }
+      .ghost-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">Payroll Estimate • South Korea ESL</div>
+      <h1>Monthly salary deductions, redesigned for clarity.</h1>
+      <p class="sub">A sleek salary estimator for foreign ESL instructors in South Korea. Enter your gross monthly salary to see an estimated breakdown for pension, health insurance, long-term care insurance, income tax, and local income tax.</p>
+
+      <div class="hero-grid">
+        <div class="panel">
+          <div class="panel-inner">
+            <div class="eyebrow">Calculator</div>
+            <h2>Gross monthly salary</h2>
+            <p class="muted">This version keeps the original calculation logic and assumes 1 dependent.</p>
+
+            <div class="field">
+              <label for="salary">Enter salary in KRW</label>
+              <div class="input-shell">
+                <span class="currency">₩</span>
+                <input id="salary" type="text" inputmode="numeric" placeholder="2,500,000" />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button id="calcBtn" class="primary-btn" type="button">Calculate estimate</button>
+              <button id="resetBtn" class="ghost-btn" type="button">Reset</button>
+            </div>
+
+            <div class="note">
+              Assumptions used: employee pension 4.75%, employee health insurance 3.595%, long-term care insurance 9.448% of employee health insurance, local income tax 10% of income tax, and all foreign ESL instructors are treated as pension payers for this estimate.
+            </div>
+
+            <div class="error" id="errorBox"></div>
+          </div>
+        </div>
+
+        <div class="panel result-card">
+          <div class="panel-inner">
+            <div class="result-top">
+              <div>
+                <div class="result-label">Estimated net monthly pay</div>
+                <div class="result-value" id="netPay">₩0</div>
+              </div>
+              <div class="salary-summary" id="salarySummary">No salary entered yet</div>
+            </div>
+
+            <div class="metric-grid">
+              <div class="metric"><strong>National Pension</strong><span id="pension">₩0</span></div>
+              <div class="metric"><strong>Health Insurance</strong><span id="health">₩0</span></div>
+              <div class="metric"><strong>Long-Term Care Insurance</strong><span id="ltc">₩0</span></div>
+              <div class="metric"><strong>Income Tax</strong><span id="incomeTax">₩0</span></div>
+              <div class="metric"><strong>Local Income Tax</strong><span id="localTax">₩0</span></div>
+              <div class="metric total"><strong>Total Deductions</strong><span id="totalDeduction">₩0</span></div>
+            </div>
+
+            <div class="chips">
+              <div class="chip" id="taxBand">Income tax band: not calculated</div>
+              <div class="chip">Dependents: 1</div>
+              <div class="chip">Estimate type: Monthly</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sections">
+      <div class="panel section-card">
+        <div class="eyebrow">Method</div>
+        <h3>How the estimate works</h3>
+        <ol>
+          <li>National Pension is calculated at 4.75% of monthly salary.</li>
+          <li>Health Insurance is calculated at 3.595% of monthly salary.</li>
+          <li>Long-Term Care Insurance is calculated at 9.448% of employee health insurance.</li>
+          <li>Income Tax is pulled from the monthly tax chart for 1 dependent.</li>
+          <li>Local Income Tax is calculated at 10% of income tax.</li>
+          <li>Net pay equals monthly salary minus total deductions.</li>
+        </ol>
+      </div>
+
+      <div class="panel section-card">
+        <div class="eyebrow">Intended use</div>
+        <h3>Who this tool is for</h3>
+        <p>This estimator is designed for foreign ESL instructors in South Korea who want a fast monthly payroll estimate based on base salary only.</p>
+        <p>It is helpful for budgeting, comparing job offers, and getting a simple preview of likely monthly deductions.</p>
+      </div>
+
+      <div class="panel section-card">
+        <div class="eyebrow">Disclaimer</div>
+        <h3>Important note</h3>
+        <div class="warnbox">
+          This calculator provides an estimate only. Actual payroll deductions may vary based on employer payroll treatment, timing of insurance enrollment, rounding methods, nationality-specific handling, and future legal or administrative updates.
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">Prepared as a modern, mobile-friendly salary deduction estimator.</div>
+  </div>
+
+  <script>
+    const TAX_TABLE = [[2000000,2010000,19520],[2010000,2020000,19850],[2020000,2030000,20170],[2030000,2040000,20490],[2040000,2050000,20810],[2050000,2060000,21130],[2060000,2070000,21450],[2070000,2080000,21770],[2080000,2090000,22090],[2090000,2100000,22420],[2100000,2110000,22740],[2110000,2120000,23060],[2120000,2130000,23380],[2130000,2140000,23700],[2140000,2150000,24020],[2150000,2160000,24340],[2160000,2170000,24660],[2170000,2180000,24990],[2180000,2190000,25310],[2190000,2200000,25630],[2200000,2210000,25950],[2210000,2220000,26270],[2220000,2230000,26590],[2230000,2240000,26910],[2240000,2250000,27240],[2250000,2260000,27560],[2260000,2270000,27880],[2270000,2280000,28200],[2280000,2290000,28520],[2290000,2300000,28840],[2300000,2310000,29160],[2310000,2320000,29480],[2320000,2330000,29810],[2330000,2340000,30130],[2340000,2350000,30450],[2350000,2360000,30770],[2360000,2370000,31090],[2370000,2380000,31410],[2380000,2390000,31730],[2390000,2400000,32050],[2400000,2410000,32380],[2410000,2420000,32700],[2420000,2430000,33020],[2430000,2440000,33340],[2440000,2450000,33660],[2450000,2460000,33980],[2460000,2470000,34300],[2470000,2480000,34630],[2480000,2490000,34950],[2490000,2500000,35270],[2500000,2510000,35600],[2510000,2520000,35940],[2520000,2530000,36280],[2530000,2540000,36630],[2540000,2550000,36970],[2550000,2560000,37310],[2560000,2570000,37650],[2570000,2580000,38000],[2580000,2590000,38340],[2590000,2600000,38830],[2600000,2610000,39690],[2610000,2620000,40540],[2620000,2630000,41400],[2630000,2640000,42260],[2640000,2650000,43110],[2650000,2660000,43970],[2660000,2670000,44820],[2670000,2680000,45680],[2680000,2690000,46540],[2690000,2700000,47390],[2700000,2710000,48250],[2710000,2720000,49100],[2720000,2730000,49960],[2730000,2740000,50810],[2740000,2750000,51670],[2750000,2760000,52530],[2760000,2770000,53380],[2770000,2780000,54240],[2780000,2790000,55090],[2790000,2800000,55950],[2800000,2810000,56800],[2810000,2820000,57660],[2820000,2830000,58520],[2830000,2840000,59370],[2840000,2850000,60230],[2850000,2860000,61080],[2860000,2870000,61940],[2870000,2880000,62790],[2880000,2890000,63650],[2890000,2900000,64510],[2900000,2910000,65360],[2910000,2920000,66220],[2920000,2930000,67070],[2930000,2940000,67930],[2940000,2950000,68780],[2950000,2960000,69640],[2960000,2970000,70500],[2970000,2980000,71350],[2980000,2990000,72210],[2990000,3000000,73060],[3000000,3020000,74350],[3020000,3040000,76060],[3040000,3060000,77770],[3060000,3080000,79480],[3080000,3100000,81190],[3100000,3120000,82900],[3120000,3140000,84620],[3140000,3160000,86330],[3160000,3180000,88040],[3180000,3200000,89750],[3200000,3220000,91460],[3220000,3240000,93170],[3240000,3260000,95430],[3260000,3280000,97880],[3280000,3300000,100320],[3300000,3320000,102770],[3320000,3340000,105210],[3340000,3360000,107660],[3360000,3380000,110100],[3380000,3400000,112550],[3400000,3420000,114990],[3420000,3440000,117440],[3440000,3460000,119880],[3460000,3480000,122330],[3480000,3500000,124770],[3500000,3520000,127220],[3520000,3540000,129660],[3540000,3560000,132110],[3560000,3580000,134550],[3580000,3600000,137000],[3600000,3620000,139440],[3620000,3640000,141890],[3640000,3660000,144330],[3660000,3680000,146780],[3680000,3700000,149220],[3700000,3720000,151670],[3720000,3740000,154110],[3740000,3760000,156560],[3760000,3780000,163920],[3780000,3800000,166590],[3800000,3820000,169260],[3820000,3840000,171930],[3840000,3860000,174600],[3860000,3880000,177270],[3880000,3900000,179940],[3900000,3920000,182610],[3920000,3940000,185280],[3940000,3960000,187950],[3960000,3980000,190620],[3980000,4000000,193290],[4000000,4020000,195960],[4020000,4040000,198630],[4040000,4060000,201300],[4060000,4080000,203970],[4080000,4100000,206640],[4100000,4120000,209310],[4120000,4140000,211980],[4140000,4160000,214650],[4160000,4180000,217320],[4180000,4200000,219990],[4200000,4220000,222660],[4220000,4240000,225330],[4240000,4260000,228000],[4260000,4280000,230670],[4280000,4300000,233340],[4300000,4320000,236010],[4320000,4340000,238680],[4340000,4360000,241350],[4360000,4380000,244020],[4380000,4400000,246690],[4400000,4420000,249360],[4420000,4440000,252030],[4440000,4460000,254700],[4460000,4480000,257370],[4480000,4500000,260040],[4500000,4520000,262840],[4520000,4540000,265650],[4540000,4560000,268450],[4560000,4580000,271260],[4580000,4600000,276560],[4600000,4620000,279370],[4620000,4640000,282170],[4640000,4660000,284980],[4660000,4680000,287780],[4680000,4700000,290590],[4700000,4720000,293390],[4720000,4740000,296200],[4740000,4760000,299000],[4760000,4780000,301810],[4780000,4800000,304610],[4800000,4820000,307420],[4820000,4840000,310220],[4840000,4860000,313030],[4860000,4880000,315830],[4880000,4900000,318640],[4900000,4920000,321440],[4920000,4940000,324250],[4940000,4960000,327050],[4960000,4980000,329860],[4980000,5000000,332660],[5000000,5020000,335470]];
+
+    const salaryInput = document.getElementById('salary');
+    const calcBtn = document.getElementById('calcBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const errorBox = document.getElementById('errorBox');
+
+    const formatNumberInput = (value) => {
+      const digits = value.replace(/[^\d]/g, '');
+      if (!digits) return '';
+      return Number(digits).toLocaleString('en-US');
+    };
+
+    const formatKRW = (value) => '₩' + Number(value).toLocaleString('en-US');
+    const roundWon = (value) => Math.round(value);
+
+    function findIncomeTax(salary) {
+      for (const [lower, upper, tax] of TAX_TABLE) {
+        if (salary >= lower && salary < upper) {
+          return { lower, upper, tax };
+        }
+      }
+      return null;
+    }
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.style.display = 'block';
+    }
+
+    function clearError() {
+      errorBox.textContent = '';
+      errorBox.style.display = 'none';
+    }
+
+    function setDefaults() {
+      document.getElementById('salarySummary').textContent = 'No salary entered yet';
+      document.getElementById('pension').textContent = '₩0';
+      document.getElementById('health').textContent = '₩0';
+      document.getElementById('ltc').textContent = '₩0';
+      document.getElementById('incomeTax').textContent = '₩0';
+      document.getElementById('localTax').textContent = '₩0';
+      document.getElementById('totalDeduction').textContent = '₩0';
+      document.getElementById('netPay').textContent = '₩0';
+      document.getElementById('taxBand').textContent = 'Income tax band: not calculated';
+    }
+
+    function calculate() {
+      clearError();
+
+      const raw = salaryInput.value.replace(/[^\d]/g, '');
+      if (!raw) {
+        showError('Please enter a monthly salary.');
+        return;
+      }
+
+      const salary = Number(raw);
+      const match = findIncomeTax(salary);
+
+      if (!match) {
+        showError('This salary is outside the income tax table range in the uploaded file. The current table supports salaries from ₩2,000,000 up to ₩5,019,999.');
+        return;
+      }
+
+      const pension = roundWon(salary * 0.0475);
+      const health = roundWon(salary * 0.03595);
+      const ltc = roundWon(health * 0.09448);
+      const incomeTax = roundWon(match.tax);
+      const localTax = roundWon(incomeTax * 0.10);
+      const totalDeduction = pension + health + ltc + incomeTax + localTax;
+      const netPay = salary - totalDeduction;
+
+      document.getElementById('salarySummary').textContent = 'Gross salary: ' + formatKRW(salary);
+      document.getElementById('pension').textContent = formatKRW(pension);
+      document.getElementById('health').textContent = formatKRW(health);
+      document.getElementById('ltc').textContent = formatKRW(ltc);
+      document.getElementById('incomeTax').textContent = formatKRW(incomeTax);
+      document.getElementById('localTax').textContent = formatKRW(localTax);
+      document.getElementById('totalDeduction').textContent = formatKRW(totalDeduction);
+      document.getElementById('netPay').textContent = formatKRW(netPay);
+      document.getElementById('taxBand').textContent = 'Income tax band: ' + formatKRW(match.lower) + ' to under ' + formatKRW(match.upper);
+    }
+
+    function resetCalculator() {
+      salaryInput.value = '';
+      clearError();
+      setDefaults();
+      salaryInput.focus();
+    }
+
+    salaryInput.addEventListener('input', (e) => {
+      const start = e.target.selectionStart;
+      const beforeLength = e.target.value.length;
+      e.target.value = formatNumberInput(e.target.value);
+      const afterLength = e.target.value.length;
+      const diff = afterLength - beforeLength;
+      const nextPos = Math.max(0, (start || afterLength) + diff);
+      window.requestAnimationFrame(() => e.target.setSelectionRange(nextPos, nextPos));
+    });
+
+    salaryInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') calculate();
+    });
+
+    calcBtn.addEventListener('click', calculate);
+    resetBtn.addEventListener('click', resetCalculator);
+    setDefaults();
+  </script>
+</body>
+</html>
